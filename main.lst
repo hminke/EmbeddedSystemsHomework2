@@ -1,0 +1,200 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; main.s
+    2 00000000         ; Runs on any Cortex M processor
+    3 00000000         ; A very simple first project implementing a random numb
+                       er generator
+    4 00000000         ; Daniel Valvano
+    5 00000000         ; May 4, 2012
+    6 00000000         
+    7 00000000         ;  This example accompanies the book
+    8 00000000         ;  "Embedded Systems: Introduction to Arm Cortex M Micro
+                       controllers",
+    9 00000000         ;  ISBN: 978-1469998749, Jonathan Valvano, copyright (c)
+                        2014
+   10 00000000         ;  Section 3.3.10, Program 3.12
+   11 00000000         ;
+   12 00000000         ;Copyright 2014 by Jonathan W. Valvano, valvano@mail.ute
+                       xas.edu
+   13 00000000         ;   You may use, edit, run or distribute this file
+   14 00000000         ;   as long as the above copyright notice remains
+   15 00000000         ;THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHET
+                       HER EXPRESS, IMPLIED
+   16 00000000         ;OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WA
+                       RRANTIES OF
+   17 00000000         ;MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE AP
+                       PLY TO THIS SOFTWARE.
+   18 00000000         ;VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR 
+                       SPECIAL, INCIDENTAL,
+   19 00000000         ;OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+   20 00000000         ;For more information about my classes, my research, and
+                        my books, see
+   21 00000000         ;http://users.ece.utexas.edu/~valvano/
+   22 00000000         
+   23 00000000         
+   24 00000000         ; we align 32 bit variables to 32-bits
+   25 00000000         ; we align op codes to 16 bits
+   26 00000000                 THUMB
+   27 00000000         
+   28 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   29 00000000                 EXPORT           Start       ;export start for S
+                                                            tartup.s
+   30 00000000                 IMPORT           Random      ;import Random from
+                                                             Hw2.c
+   31 00000000         
+   32 00000000         Start
+   33 00000000 F000 F804       BL               add64
+   34 00000004 F000 F813       BL               sub64
+   35 00000008 F000 F822       BL               endian
+   36 0000000C         
+   37 0000000C         add64
+   38 0000000C 4671            MOV              R1, LR      ;store the return a
+                                                            ddress in R1.
+   39 0000000E F7FF FFFE       BL               Random      ;call Random from C
+                                                             program.
+   40 00000012 4602            MOV              R2, R0      ;store the random v
+                                                            alue in R2.
+   41 00000014 F7FF FFFE       BL               Random      ;call Random from C
+                                                             program.
+   42 00000018 EB02 0300       ADD              R3, R2, R0
+   43 0000001C F7FF FFFE       BL               Random
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   44 00000020 4602            MOV              R2, R0
+   45 00000022 F7FF FFFE       BL               Random
+   46 00000026 EB02 0400       ADD              R4, R2, R0
+   47 0000002A 18E4            ADDS             R4, R4, R3
+   48 0000002C 4708            BX               R1
+   49 0000002E         
+   50 0000002E         sub64
+   51 0000002E 4676            MOV              R6, LR
+   52 00000030 F7FF FFFE       BL               Random
+   53 00000034 4604            MOV              R4, R0
+   54 00000036 F7FF FFFE       BL               Random
+   55 0000003A EB04 0500       ADD              R5, R4, R0
+   56 0000003E F7FF FFFE       BL               Random
+   57 00000042 4604            MOV              R4, R0
+   58 00000044 F7FF FFFE       BL               Random
+   59 00000048 EB04 0600       ADD              R6, R4, R0
+   60 0000004C 1BAD            SUBS             R5, R5, R6
+   61 0000004E 4708            BX               R1
+   62 00000050         
+   63 00000050         endian
+   64 00000050 4677            MOV              R7, LR
+   65 00000052 F7FF FFFE       BL               Random
+   66 00000056 BA01            REV              R1, R0
+   67 00000058 F7FF FFFE       BL               Random
+   68 0000005C BA02            REV              R2, R0
+   69 0000005E F7FF FFFE       BL               Random
+   70 00000062 BA03            REV              R3, R0
+   71 00000064 F7FF FFFE       BL               Random
+   72 00000068 BA04            REV              R4, R0
+   73 0000006A F7FF FFFE       BL               Random
+   74 0000006E BA05            REV              R5, R0
+   75 00000070 F7FF FFFE       BL               Random
+   76 00000074 BA06            REV              R6, R0
+   77 00000076 F7FF FFFE       BL               Random
+   78 0000007A BA07            REV              R7, R0
+   79 0000007C F7FF FFFE       BL               Random
+   80 00000080 FA90 F880       REV              R8, R0
+   81 00000084 F7FF FFFE       BL               Random
+   82 00000088 FA90 F980       REV              R9, R0
+   83 0000008C F7FF FFFE       BL               Random
+   84 00000090 FA90 FA80       REV              R10, R0
+   85 00000094 E92D 07FE       PUSH             {R1 - R10}
+   86 00000098 4738            BX               R7
+   87 0000009A         
+   88 0000009A 00 00           ALIGN
+   89 0000009C                 END
+Command Line: --debug --xref --cpu=Cortex-M4.fp --apcs=interwork --depend=.\mai
+n.d -o.\main.o -IC:\Keil\ARM\RV31\INC -IC:\Keil\ARM\CMSIS\Include -IC:\Keil\ARM
+\Inc\TI\TM4C123 --predefine="__EVAL SETA 1" --list=.\main.lst main.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 28 in file main.s
+   Uses
+      None
+Comment: .text unused
+Start 00000000
+
+Symbol: Start
+   Definitions
+      At line 32 in file main.s
+   Uses
+      At line 29 in file main.s
+Comment: Start used once
+add64 0000000C
+
+Symbol: add64
+   Definitions
+      At line 37 in file main.s
+   Uses
+      At line 33 in file main.s
+Comment: add64 used once
+endian 00000050
+
+Symbol: endian
+   Definitions
+      At line 63 in file main.s
+   Uses
+      At line 35 in file main.s
+Comment: endian used once
+sub64 0000002E
+
+Symbol: sub64
+   Definitions
+      At line 50 in file main.s
+   Uses
+      At line 34 in file main.s
+Comment: sub64 used once
+5 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+Random 00000000
+
+Symbol: Random
+   Definitions
+      At line 30 in file main.s
+   Uses
+      At line 39 in file main.s
+      At line 41 in file main.s
+      At line 43 in file main.s
+      At line 45 in file main.s
+      At line 52 in file main.s
+      At line 54 in file main.s
+      At line 56 in file main.s
+      At line 58 in file main.s
+      At line 65 in file main.s
+      At line 67 in file main.s
+      At line 69 in file main.s
+      At line 71 in file main.s
+      At line 73 in file main.s
+      At line 75 in file main.s
+      At line 77 in file main.s
+      At line 79 in file main.s
+      At line 81 in file main.s
+      At line 83 in file main.s
+
+1 symbol
+338 symbols in table
